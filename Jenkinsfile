@@ -2,16 +2,17 @@ pipeline {
     agent any
 
     environment {
-        PROJECT_ID = 'your-gcp-project-id'
-        CLUSTER_NAME = 'your-gke-cluster'
-        CLUSTER_ZONE = 'your-cluster-zone'
+        PROJECT_ID = 'playground-s-11-442a953c'
+        CLUSTER_NAME = 'java-jenkins'
+        CLUSTER_ZONE = 'us-central1'
         IMAGE_NAME = "gcr.io/${env.PROJECT_ID}/bookstore"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/your-repository.git'
+                git branch: 'main',
+               url:'https://github.com/keerthana-balu-sada/bookstore.git'
             }
         }
 
