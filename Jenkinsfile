@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools{
+        maven 'maven'
+    }
 
     environment {
         PROJECT_ID = 'sadaindia-poc-infra-1700'
