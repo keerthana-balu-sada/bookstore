@@ -6,14 +6,14 @@ pipeline {
         CLUSTER_NAME = 'cluster-tu'
         CLUSTER_ZONE = 'us-central1'
         IMAGE_NAME = "gcr.io/${env.PROJECT_ID}/bookstore"
-        namespace = "tu1"
+        NAMESPACE = "tu1"
     }
 
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-               url:'https://github.com/keerthana-balu-sada/bookstore.git'
+                    url: 'https://github.com/keerthana-balu-sada/bookstore.git'
             }
         }
 
@@ -52,16 +52,15 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying to GKE...'
-                    sh "sed -i 's/tagversion/${env.BUILD_ID}/g' deployment.yaml"
-                    step([$class: 'KubernetesEngineBuilder',
-                          projectId: env.PROJECT_ID,
-                          clusterName: env.CLUSTER_NAME,
-                          location: env.LOCATION,
-                          namespace: env.NAMESPACE,
-                          manifestPattern: 'deployment.yaml',
-                        //   credentialsId: env.CREDENTIALS_ID,
-                          verifyDeployments: true])
-    }
+                    // Replace the tagversion placeholder in the YAML file
+                    sh "sed -i 's/tagversion/${env.BUILD_NUMBER}/g' deployment.yaml"
+
+                    // Get GKE credentials
+                    sh "gcloud container clusters get-credentials ${CLUSTER_NAME} --zone ${CLUSTER_ZONE} --project ${PROJECT_ID}"
+
+                    // Apply Kubernetes deployment
+                    sh "kubectl apply -f deployment.yaml --namespace=${NAMESPACE}"
+                }
             }
         }
     }
@@ -69,4 +68,6 @@ pipeline {
     post {
         always {
             junit 'target/surefire-reports/*.xml'
-       
+        }
+    }
+}
