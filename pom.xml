@@ -10,7 +10,7 @@
     <properties>
         <java.version>1.8</java.version>
         <spring-boot.version>2.5.5</spring-boot.version>
-        <docker-maven-plugin.version>1.4.10</docker-maven-plugin.version>
+        <docker-maven-plugin.version>13.6.3</docker-maven-plugin.version>
     </properties>
 
     <dependencies>
