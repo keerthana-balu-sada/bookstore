@@ -26,6 +26,7 @@ pipeline {
                 echo 'Building the project with Maven...'
                 script {
                     // Use Maven to clean and package the application
+                    sh 'mvn --version'
                     sh 'mvn clean package'
                 }
             }
