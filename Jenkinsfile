@@ -12,6 +12,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                echo 'Checking out code from Git repository...'
                 git branch: 'main',
                     url: 'https://github.com/keerthana-balu-sada/bookstore.git'
             }
@@ -19,8 +20,9 @@ pipeline {
 
         stage('Build with Maven') {
             steps {
-                echo 'Building the project with Maven'
+                echo 'Building the project with Maven...'
                 script {
+                    // Use Maven to clean and package the application
                     sh 'mvn clean package'
                 }
             }
@@ -28,6 +30,7 @@ pipeline {
 
         stage('Run Tests') {
             steps {
+                echo 'Running unit tests...'
                 script {
                     // Run unit tests
                     sh 'mvn test'
@@ -37,11 +40,13 @@ pipeline {
 
         stage('Docker Build and Push') {
             steps {
+                echo 'Building and pushing Docker image...'
                 script {
                     // Build Docker image
                     sh "docker build -t ${env.IMAGE_NAME}:${env.BUILD_NUMBER} ."
 
                     // Authenticate with GCR and push the image
+                    sh "echo $GOOGLE_CREDENTIALS | gcloud auth activate-service-account --key-file=-"
                     sh "gcloud auth configure-docker"
                     sh "docker push ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
                 }
@@ -50,8 +55,8 @@ pipeline {
 
         stage('Deploy to GKE') {
             steps {
+                echo 'Deploying to GKE...'
                 script {
-                    echo 'Deploying to GKE...'
                     // Replace the tagversion placeholder in the YAML file
                     sh "sed -i 's/tagversion/${env.BUILD_NUMBER}/g' deployment.yaml"
 
@@ -67,7 +72,16 @@ pipeline {
 
     post {
         always {
+            echo 'Running post-build steps...'
             junit 'target/surefire-reports/*.xml'
+        }
+
+        success {
+            echo 'Build and deployment succeeded!'
+        }
+
+        failure {
+            echo 'Build or deployment failed.'
         }
     }
 }
