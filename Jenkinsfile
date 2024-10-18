@@ -2,10 +2,11 @@ pipeline {
     agent any
 
     environment {
-        PROJECT_ID = 'playground-s-11-442a953c'
-        CLUSTER_NAME = 'java-jenkins'
+        PROJECT_ID = 'sadaindia-poc-infra-1700'
+        CLUSTER_NAME = 'cluster-tu'
         CLUSTER_ZONE = 'us-central1'
         IMAGE_NAME = "gcr.io/${env.PROJECT_ID}/bookstore"
+        namespace = "tu1"
     }
 
     stages {
@@ -50,12 +51,17 @@ pipeline {
         stage('Deploy to GKE') {
             steps {
                 script {
-                    // Get GKE credentials
-                    sh "gcloud container clusters get-credentials ${CLUSTER_NAME} --zone ${CLUSTER_ZONE} --project ${PROJECT_ID}"
-
-                    // Deploy the Docker image to Kubernetes
-                    sh "kubectl set image deployment/bookstore bookstore=${IMAGE_NAME}:${env.BUILD_NUMBER} --record"
-                }
+                    echo 'Deploying to GKE...'
+                    sh "sed -i 's/tagversion/${env.BUILD_ID}/g' deployment.yaml"
+                    step([$class: 'KubernetesEngineBuilder',
+                          projectId: env.PROJECT_ID,
+                          clusterName: env.CLUSTER_NAME,
+                          location: env.LOCATION,
+                          namespace: env.NAMESPACE,
+                          manifestPattern: 'deployment.yaml',
+                          credentialsId: env.CREDENTIALS_ID,
+                          verifyDeployments: true])
+    }
             }
         }
     }

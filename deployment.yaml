@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-deployment
+  namespace: tu1  
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tujenkins
+  template:
+    metadata:
+      labels:
+        app: tujenkins
+    spec:
+      containers:
+      - name: tujenkins-container
+        image: us-central1-docker.pkg.dev/sadaindia-poc-infra-1700/bookstore/static-site:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-service
+  namespace: tu1 
+spec:
+  selector:
+    app: tujenkins
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
