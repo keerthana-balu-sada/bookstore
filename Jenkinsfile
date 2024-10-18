@@ -59,7 +59,7 @@ pipeline {
                           location: env.LOCATION,
                           namespace: env.NAMESPACE,
                           manifestPattern: 'deployment.yaml',
-                          credentialsId: env.CREDENTIALS_ID,
+                        //   credentialsId: env.CREDENTIALS_ID,
                           verifyDeployments: true])
     }
             }
